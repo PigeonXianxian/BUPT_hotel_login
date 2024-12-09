@@ -40,7 +40,7 @@
 import { reactive } from 'vue';
 import ValidCode from '@/components/ValidCode.vue';
 import User from '@/models/Login'
-const user = reactive(new User(5));
+const USER = reactive(new User(5));
 
 export default {
     name: 'Login',
@@ -92,7 +92,10 @@ export default {
                 if (valid) {
                     // 验证通过
                     console.log("发送登录验证请求")
-                    user.Login('/login')
+                    USER.username = this.user.username;
+                    USER.password = this.user.password;
+                    //console.log("当前USER数据:", USER);
+                    USER.Login('/login')
                     //this.$request.post('/login', this.user).then(res => {
                     //    if (res.code === '200') {
                     //        this.$router.push('/') // 跳转界面
