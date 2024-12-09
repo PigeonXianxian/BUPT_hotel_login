@@ -7,7 +7,7 @@
             <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
                 <el-form :model="user" style="width: 80%" :rules="rules" ref="loginRef">
                     <div style="font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 20px;">
-                        欢迎登录BUPT酒店管理系统
+                        BUPT酒店管理系统
                     </div>
                     <el-form-item prop="username">
                         <el-input prefix-icon="el-icon-user" size="medium" placeholder="请输入账号:3" v-model="user.username"></el-input>
@@ -37,8 +37,10 @@
 </template>
 
 <script>
+import { reactive } from 'vue';
 import ValidCode from '@/components/ValidCode.vue';
-import request from '@/utils/request';
+import User from '@/models/Login'
+const user = reactive(new User(5));
 
 export default {
     name: 'Login',
@@ -46,7 +48,6 @@ export default {
         ValidCode
     },
     data() {
-
         // 验证码校验
         const validateCode = (rule, value, callback) => {
             if (value === '') {
@@ -90,14 +91,16 @@ export default {
             this.$refs['loginRef'].validate((valid) => {
                 if (valid) {
                     // 验证通过
-                    this.$request.post('/login', this.user).then(res => {
-                        if (res.code === '200') {
-                            this.$router.push('/') // 跳转界面
-                            this.$message.success('登录成功')
-                        } else {
-                            this.$message.error(res.msg)
-                        }
-                    })
+                    console.log("发送登录验证请求")
+                    user.Login('/login')
+                    //this.$request.post('/login', this.user).then(res => {
+                    //    if (res.code === '200') {
+                    //        this.$router.push('/') // 跳转界面
+                    //        this.$message.success('登录成功')
+                    //    } else {
+                    //        this.$message.error(res.msg)
+                    //    }
+                    //})
                 }
             })
         }
