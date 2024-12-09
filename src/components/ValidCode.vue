@@ -1,84 +1,82 @@
 <template>
-    <canvas ref="canvas" @click="draw" width="140" height="40" style="cursor: pointer;"></canvas>
-  </template>
-  <script>
-  export default {
-    data() {
-      return {
-        codes: [],
-        ctx: "",
-        colors: ["red", "yellow", "blue", "green", "pink", "black"],
-        code_Len: 4
-      };
+  <div class="ValidCode disabled-select"
+       :style="`width:${width}; height:${height}`"
+       @click="refreshCode">
+    <span v-for="(item, index) in codeList"
+          :key="index"
+          :style="getStyle(item)">
+      {{item.code}}
+    </span>
+  </div>
+</template>
+<script>
+export default {
+  name: "ValidCode",
+  model: {
+    prop: 'value',
+    event: 'input'
+  },
+  props: {
+    width: {
+      type: String,
+      default: '100px'
     },
-    mounted() {
-      this.draw();
+    height: {
+      type: String,
+      default: '34px'
     },
-    computed: {
-      codeString() {
-        let result = "";
-        for (let i = 0; i < this.codes.length; i++) {
-          result += this.codes[i];
-        }
-        return result.toUpperCase();
-      }
-    },
-    watch: {
-      codeString: function(newValue) {
-        this.$emit("change", newValue);
-      }
-    },
-    methods: {
-      generateRandom() {
-        this.codes = [];
-        const chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-        const charsArr = chars.split("");
-   
-        for (let i = 0; i < this.code_Len; i++) {
-          const num = Math.floor(Math.random() * charsArr.length);
-          this.codes.push(charsArr[num]);
-        }
-      },
-      draw() {
-        this.generateRandom();
-        this.drawText();
-      },
-      drawLine() {
-        const lineNumber = 3; // 线条条数
-        const lineX = 140;
-        const lineY = 30; // 最大线条坐标
-        for (let i = 0; i < lineNumber; i++) {
-          this.ctx.strokeStyle = this.colors[Math.floor(Math.random() * 5)];
-          this.ctx.beginPath();
-          this.ctx.moveTo(
-            Math.floor(Math.random() * lineX),
-            Math.floor(Math.random() * lineY)
-          );
-          this.ctx.lineTo(
-            Math.floor(Math.random() * lineX),
-            Math.floor(Math.random() * lineY)
-          );
-          this.ctx.stroke();
-        }
-      },
-      drawText() {
-        const canvas = this.$refs["canvas"];
-        this.ctx = canvas.getContext("2d");
-   
-        this.ctx.fillStyle = "#BFEFFF";
-        this.ctx.fillRect(0, 0, 140, 40);
-        this.ctx.font = "20px Verdana";
-   
-        let x = 15;
-   
-        for (let i = 0; i < this.code_Len; i++) {
-          this.ctx.fillStyle = this.colors[Math.floor(Math.random() * 5)];
-          this.ctx.fillText(this.codes[i], x, 25);
-          x = x + 30;
-        }
-   
-        this.drawLine();
-      }
+    length: {
+      type: Number,
+      default: 4
     }
-  };
-  </script>
+  },
+  data () {
+    return {
+      codeList: []
+    }
+  },
+  mounted () {
+    this.createdCode()
+  },
+  methods: {
+    refreshCode () {
+      this.createdCode()
+    },
+    createdCode () {
+      const len = this.length
+      const codeList = []
+      const chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz0123456789'
+      const charsLen = chars.length
+      // 生成
+      for (let i = 0; i < len; i++) {
+        const rgb = [Math.round(Math.random() * 220), Math.round(Math.random() * 240), Math.round(Math.random() * 200)]
+        codeList.push({
+          code: chars.charAt(Math.floor(Math.random() * charsLen)),
+          color: `rgb(${rgb})`,
+          fontSize: `1${[Math.floor(Math.random() * 10)]}px`,
+          padding: `${[Math.floor(Math.random() * 10)]}px`,
+          transform: `rotate(${Math.floor(Math.random() * 90) - Math.floor(Math.random() * 90)}deg)`
+        })
+      }
+      // 指向
+      this.codeList = codeList
+      // 将当前数据派发出去
+      this.$emit('input', codeList.map(item => item.code).join(''))
+    },
+    getStyle (data) {
+      return `color: ${data.color}; font-size: ${data.fontSize}; padding: ${data.padding}; transform: ${data.transform}`
+    }
+  }
+}
+</script>
+<style lang="less" scoped>
+.ValidCode{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  span{
+    display: inline-block;
+  }
+}
+</style>

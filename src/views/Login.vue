@@ -5,7 +5,7 @@
                 <img src="@/assets/login.jpg" alt="" style="width: 100%;">
             </div>
             <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
-                <el-form :model="user" style="width: 80%">
+                <el-form :model="user" style="width: 80%" :rules="rules" ref="loginRef">
                     <div style="font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 20px;">
                         欢迎登录BUPT酒店管理系统
                     </div>
@@ -15,16 +15,16 @@
                     <el-form-item prop="password">
                         <el-input prefix-icon="el-icon-lock" size="medium" show-password placeholder="请输入密码:3" v-model="user.password"></el-input>
                     </el-form-item>
-                    <el-form-item prop="validCode">
+                    <el-form-item prop="code">
                         <div style="display: flex;">
-                            <el-input prefix-icon="el-icon-circle-check" size="medium" style="flex: 1"></el-input>
-                            <div style="flex: 1">
-                                <valid-code></valid-code>
+                            <el-input prefix-icon="el-icon-circle-check" size="medium" placeholder="请输入验证码:3" style="flex: 1" v-model="user.code"></el-input>
+                            <div style="flex: 1; height: 36px">
+                                <valid-code @input="getCode" style="margin-top: 5px;margin-left: 5px;"/>
                             </div>
                         </div>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" style="width: 100%; background-color: #0f9876;">登录</el-button>
+                        <el-button type="primary" style="width: 100%; background-color: #0f9876;" @click="login">登录</el-button>
                     </el-form-item>
                     <div style="display: flex">
                         <div style="flex: 1;">还没有账号？<span style="color: #0f9876; cursor: pointer;">注册:3</span></div>
@@ -38,22 +38,69 @@
 
 <script>
 import ValidCode from '@/components/ValidCode.vue';
+import request from '@/utils/request';
 
 export default {
-    name: "Login",
+    name: 'Login',
     components: {
         ValidCode
     },
     data() {
+
+        // 验证码校验
+        const validateCode = (rule, value, callback) => {
+            if (value === '') {
+                callback(new Error('请输入验证码'))
+            } else if (value.toLowerCase() !== this.code) {
+                callback(new Error('验证码错误'))
+            } else {
+                callback()
+            }
+        }
+
         return{
+            code: '', // 验证码组件传递过来的code
             user: {
+                code: '', // 表单里用户输入的code验证码
                 username: '',
                 password: ''
+            },
+            rules: {
+                username: [
+                    {required: true, message: '请输入账号', trigger: 'blur'},
+                ],
+                password: [
+                    {required: true, message: '请输入密码', trigger: 'blur'},
+                ],
+                code: [
+                    {validator: validateCode, trigger: 'blur'}
+                ],
             }
         }
     },
     created(){
 
+    },
+    methods: {
+        getCode(code){
+            console.log(code)
+            this.code = code.toLowerCase()
+        },
+        login(){
+            this.$refs['loginRef'].validate((valid) => {
+                if (valid) {
+                    // 验证通过
+                    this.$request.post('/login', this.user).then(res => {
+                        if (res.code === '200') {
+                            this.$router.push('/') // 跳转界面
+                            this.$message.success('登录成功')
+                        } else {
+                            this.$message.error(res.msg)
+                        }
+                    })
+                }
+            })
+        }
     }
 }
 </script>
