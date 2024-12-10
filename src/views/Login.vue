@@ -40,7 +40,7 @@
 import { reactive } from 'vue';
 import ValidCode from '@/components/ValidCode.vue';
 import User from '@/models/Login'
-const USER = reactive(new User(5));
+const USER = reactive(new User());
 
 export default {
     name: 'Login',

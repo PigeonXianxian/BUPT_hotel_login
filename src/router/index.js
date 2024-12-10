@@ -1,22 +1,19 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import HomeView from '../views/Manager.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: HomeView
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    name: 'manager',
+    component: HomeView,
+    redirect: '/home', // 重定向
+    children: [
+      {path: 'home', name: 'home', component: () => import('../views/Manager/HomeView')}, // 系统的主页
+      {path: 'customer', name: 'customer', component: () => import('../views/Manager/Customer')}, // 这里改成对应的用户跳转界面
+    ]
   },
   {
     path: "/login",
